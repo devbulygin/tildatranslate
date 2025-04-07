@@ -1,48 +1,68 @@
 <!-- Подключаем js-cookie -->
 <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
 
-<!-- Подключаем Google Translate и наш скрипт -->
+<!-- Скрипт с логами -->
 <script>
     const googleTranslateConfig = {
-        lang: "ru", // Язык по умолчанию
-        domain: "project12674715.tilda.ws" // Укажи свой домен, если он изменится
+        lang: "ru",
+        domain: "kurdorganization.tilda.ws"
     };
 
     function TranslateInit() {
-        let code = TranslateGetCode();
+        console.log("🔁 TranslateInit запускается...");
 
-        // Отмечаем активный флаг
+        let code = TranslateGetCode();
+        console.log("🌍 Язык из куки / по умолчанию:", code);
+
+        // Активируем флаг
         const activeLangEl = document.querySelector('[data-google-lang="' + code + '"]');
         if (activeLangEl) {
             activeLangEl.classList.add('language__img_active');
+            console.log("✅ Активный флаг найден и выделен:", code);
+        } else {
+            console.warn("⚠️ Флаг не найден для языка:", code);
         }
 
-        // Сохраняем выбранный язык даже если это язык по умолчанию
-        TranslateCookieHandler("/" + googleTranslateConfig.lang + "/" + code, googleTranslateConfig.domain);
+        // Устанавливаем куку даже если это язык по умолчанию
+        const cookieVal = "/" + googleTranslateConfig.lang + "/" + code;
+        console.log("🍪 Устанавливаем куку:", cookieVal);
+        TranslateCookieHandler(cookieVal, googleTranslateConfig.domain);
 
-        // Инициализируем переводчик
+        // Инициализация Google Translate
+        console.log("📦 Инициализация виджета Google Translate...");
         new google.translate.TranslateElement({
             pageLanguage: googleTranslateConfig.lang,
         });
 
-        // Навешиваем обработчик на флаги
+        // Обработчик клика по флагу
         TranslateEventHandler('click', '[data-google-lang]', function (el) {
             const targetLang = el.getAttribute("data-google-lang");
-            TranslateCookieHandler("/" + googleTranslateConfig.lang + "/" + targetLang, googleTranslateConfig.domain);
+            const newCookieVal = "/" + googleTranslateConfig.lang + "/" + targetLang;
+
+            console.log("🖱 Клик по языку:", targetLang);
+            console.log("🍪 Устанавливаем новую куку:", newCookieVal);
+            TranslateCookieHandler(newCookieVal, googleTranslateConfig.domain);
+
+            console.log("🔄 Перезагрузка страницы...");
             window.location.reload();
         });
     }
 
     function TranslateGetCode() {
-        let lang = Cookies.get('googtrans') || "/";
-        return lang.match(/(?!^\/)[^\/]*$/gm)?.[0] || googleTranslateConfig.lang;
+        const cookie = Cookies.get('googtrans');
+        console.log("🔍 Получаем googtrans из куки:", cookie);
+        const lang = cookie || "/";
+        const match = lang.match(/(?!^\/)[^\/]*$/gm);
+        return match ? match[0] : googleTranslateConfig.lang;
     }
 
     function TranslateCookieHandler(val, domain) {
+        console.log("🍪 Установка куки для домена:", document.domain);
         Cookies.set('googtrans', val);
         Cookies.set('googtrans', val, { domain: "." + document.domain });
 
         if (domain) {
+            console.log("🍪 Установка куки для заданного домена:", domain);
             Cookies.set('googtrans', val, { domain: domain });
             Cookies.set('googtrans', val, { domain: "." + domain });
         }
