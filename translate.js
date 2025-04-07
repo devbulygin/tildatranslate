@@ -1,67 +1,80 @@
-<!-- Подключаем js-cookie -->
-<script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+/*!***************************************************
+ * google-translate.js v1.0.3
+ * https://Get-Web.Site/
+ * author: Vitalii P.
+ *****************************************************/
 
-<script>
-    const googleTranslateConfig = {
-        lang: "ru", // Язык по умолчанию
-        domain: "kurdorganization.tilda.ws"
-    };
+const googleTranslateConfig = {
+    /* Original language */
+    lang: "ru",
+    /* The language we translate into on the first visit*/
+    /* Язык, на который переводим при первом посещении */
+    // langFirstVisit: 'en',
+    /* Если скрипт не работает на поддомене, 
+    раскомментируйте и
+    укажите основной домен в свойстве domain */
+    domain: "project12674715.tilda.ws"
+};
 
-    function TranslateInit() {
-        let code = TranslateGetCode();
+function TranslateInit() {
 
-        // Находим активный флаг
-        const activeLangEl = document.querySelector('[data-google-lang="' + code + '"]');
-        if (activeLangEl) {
-            activeLangEl.classList.add('language__img_active');
-        }
-
-        // Инициализируем Google Translate
-        new google.translate.TranslateElement({
-            pageLanguage: googleTranslateConfig.lang,
-        });
-
-        // Обработчик кликов на флаги
-        TranslateEventHandler('click', '[data-google-lang]', function (el) {
-            const targetLang = el.getAttribute("data-google-lang");
-
-            // Если текущий язык уже выбран, не делаем ничего
-            if (targetLang === code) return;
-
-            // Обновляем куку с новым языком
-            const newCookieVal = "/" + googleTranslateConfig.lang + "/" + targetLang;
-            TranslateCookieHandler(newCookieVal, googleTranslateConfig.domain);
-
-            // Перезагружаем страницу для применения нового языка
-            window.location.reload();
-        });
+    if (googleTranslateConfig.langFirstVisit && !Cookies.get('googtrans')) {
+        // Если установлен язык перевода для первого посещения и куки не назначены
+        TranslateCookieHandler("/auto/" + googleTranslateConfig.langFirstVisit);
     }
 
-    function TranslateGetCode() {
-        // Если куки нет, то передаем дефолтный язык
-        const cookie = Cookies.get('googtrans') || "/";
-        const match = cookie.match(/(?!^\/)[^\/]*$/gm);
-        return match ? match[0] : googleTranslateConfig.lang;
+    let code = TranslateGetCode();
+    // Находим флаг с выбранным языком для перевода и добавляем к нему активный класс
+    if (document.querySelector('[data-google-lang="' + code + '"]') !== null) {
+        document.querySelector('[data-google-lang="' + code + '"]').classList.add('language__img_active');
     }
 
-    function TranslateCookieHandler(val, domain) {
-        // Записываем куки для выбранного языка
-        Cookies.set('googtrans', val);
-        Cookies.set('googtrans', val, { domain: "." + document.domain });
-
-        if (domain) {
-            Cookies.set('googtrans', val, { domain: domain });
-            Cookies.set('googtrans', val, { domain: "." + domain });
-        }
+    if (code == googleTranslateConfig.lang) {
+        // Если язык по умолчанию, совпадает с языком на который переводим
+        // То очищаем куки
+        TranslateCookieHandler(null, googleTranslateConfig.domain);
     }
 
-    function TranslateEventHandler(event, selector, handler) {
-        document.addEventListener(event, function (e) {
-            const el = e.target.closest(selector);
-            if (el) handler(el);
-        });
-    }
-</script>
+    // Инициализируем виджет с языком по умолчанию
+    new google.translate.TranslateElement({
+        pageLanguage: googleTranslateConfig.lang,
+    });
 
-<!-- Google Translate -->
-<script src="//translate.google.com/translate_a/element.js?cb=TranslateInit"></script>
+    // Вешаем событие  клик на флаги
+    TranslateEventHandler('click', '[data-google-lang]', function (e) {
+        TranslateCookieHandler("/" + googleTranslateConfig.lang + "/" + e.getAttribute("data-google-lang"), googleTranslateConfig.domain);
+        // Перезагружаем страницу
+        window.location.reload();
+    });
+}
+
+function TranslateGetCode() {
+    // Если куки нет, то передаем дефолтный язык
+    let lang = (Cookies.get('googtrans') != undefined && Cookies.get('googtrans') != "null") ? Cookies.get('googtrans') : googleTranslateConfig.lang;
+    return lang.match(/(?!^\/)[^\/]*$/gm)[0];
+}
+
+function TranslateCookieHandler(val, domain) {
+    // Записываем куки /язык_который_переводим/язык_на_который_переводим
+    Cookies.set('googtrans', val);
+    Cookies.set("googtrans", val, {
+        domain: "." + document.domain,
+    });
+
+    if (domain == "undefined") return;
+    // записываем куки для домена, если он назначен в конфиге
+    Cookies.set("googtrans", val, {
+        domain: domain,
+    });
+
+    Cookies.set("googtrans", val, {
+        domain: "." + domain,
+    });
+}
+
+function TranslateEventHandler(event, selector, handler) {
+    document.addEventListener(event, function (e) {
+        let el = e.target.closest(selector);
+        if (el) handler(el);
+    });
+}
