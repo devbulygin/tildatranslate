@@ -8,14 +8,14 @@
     };
 
     function TranslateInit() {
-        let code = TranslateGetCode();
+        const currentLang = TranslateGetCode();
 
-        const activeLangEl = document.querySelector('[data-google-lang="' + code + '"]');
+        const activeLangEl = document.querySelector('[data-google-lang="' + currentLang + '"]');
         if (activeLangEl) {
             activeLangEl.classList.add('language__img_active');
         }
 
-        const cookieVal = "/" + googleTranslateConfig.lang + "/" + code;
+        const cookieVal = "/" + googleTranslateConfig.lang + "/" + currentLang;
         TranslateCookieHandler(cookieVal, googleTranslateConfig.domain);
 
         new google.translate.TranslateElement({
@@ -28,7 +28,27 @@
 
             DeleteTranslateCookies(googleTranslateConfig.domain);
             TranslateCookieHandler(newCookieVal, googleTranslateConfig.domain);
-            window.location.reload();
+
+            // Если возвращаемся на оригинальный язык — принудительно сбрасываем перевод
+            if (targetLang === googleTranslateConfig.lang) {
+                // Удалим iframe перевода
+                const frame = document.querySelector("iframe.goog-te-banner-frame");
+                if (frame) frame.remove();
+
+                // Удалим лишние классы
+                document.body.classList.remove("goog-te-banner-frame", "skiptranslate");
+                const el = document.querySelector(".goog-te-banner-frame");
+                if (el) el.remove();
+
+                // Удалим элемент translate
+                const translateEl = document.getElementById("google_translate_element");
+                if (translateEl) translateEl.innerHTML = "";
+
+                // Жёсткий сброс страницы
+                window.location.href = window.location.pathname;
+            } else {
+                window.location.reload();
+            }
         });
     }
 
@@ -66,5 +86,4 @@
     }
 </script>
 
-<!-- Подключение Google Translate -->
 <script src="//translate.google.com/translate_a/element.js?cb=TranslateInit"></script>
