@@ -1,7 +1,6 @@
 <!-- Подключаем js-cookie -->
 <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
 
-<!-- Скрипт -->
 <script>
     const googleTranslateConfig = {
         lang: "ru",
@@ -26,6 +25,8 @@
         TranslateEventHandler('click', '[data-google-lang]', function (el) {
             const targetLang = el.getAttribute("data-google-lang");
             const newCookieVal = "/" + googleTranslateConfig.lang + "/" + targetLang;
+
+            DeleteTranslateCookies(googleTranslateConfig.domain);
             TranslateCookieHandler(newCookieVal, googleTranslateConfig.domain);
             window.location.reload();
         });
@@ -47,6 +48,16 @@
         }
     }
 
+    function DeleteTranslateCookies(domain) {
+        Cookies.remove('googtrans');
+        Cookies.remove('googtrans', { domain: "." + document.domain });
+
+        if (domain) {
+            Cookies.remove('googtrans', { domain: domain });
+            Cookies.remove('googtrans', { domain: "." + domain });
+        }
+    }
+
     function TranslateEventHandler(event, selector, handler) {
         document.addEventListener(event, function (e) {
             const el = e.target.closest(selector);
@@ -55,5 +66,5 @@
     }
 </script>
 
-<!-- Подключаем Google Translate -->
+<!-- Подключение Google Translate -->
 <script src="//translate.google.com/translate_a/element.js?cb=TranslateInit"></script>
