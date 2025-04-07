@@ -26,7 +26,7 @@
         TranslateEventHandler('click', '[data-google-lang]', function (el) {
             const targetLang = el.getAttribute("data-google-lang");
 
-            // Если текущий язык уже выбран, перезагружаем страницу без изменений
+            // Если текущий язык уже выбран, не перезагружаем страницу
             if (targetLang === code) return;
 
             // Записываем куку для выбранного языка
