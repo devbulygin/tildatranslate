@@ -92,14 +92,24 @@ function TranslateCookieHandler(val, domain) {
 		path: '/',
 	};
 
+	// Удаляем все возможные варианты куки, чтобы избежать конфликтов
+	const domainsToClear = [
+		document.domain,
+		"." + document.domain,
+		domain,
+		"." + domain
+	];
+
+	domainsToClear.forEach(d => {
+		Cookies.remove("googtrans", { domain: d, path: "/" });
+	});
+
+	// Устанавливаем только одну — нужную
 	if (val) {
-		// Устанавливаем куку
 		Cookies.set("googtrans", val, cookieOptions);
-	} else {
-		// Удаляем куку, если val == null
-		Cookies.remove("googtrans", cookieOptions);
 	}
 }
+
 
 
 function TranslateEventHandler(event, selector, handler) {
