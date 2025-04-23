@@ -87,30 +87,20 @@ function TranslateGetCode(config) {
 }
 
 function TranslateCookieHandler(val, domain) {
-	/* Записываем куки /язык_который_переводим/язык_на_который_переводим */
-	/* Writing down cookies /language_for_translation/the_language_we_are_translating_into */
-	Cookies.set("googtrans", val, {
-		domain: document.domain,
-		path: '/'
-	});
-	Cookies.set("googtrans", val, {
-		domain: "." + document.domain,
-		path: '/'
-	});
-
-	if (domain == "undefined") return;
-	/* записываем куки для домена, если он назначен в конфиге */
-	/* Writing down cookies for the domain, if it is assigned in the config */
-	Cookies.set("googtrans", val, {
+	const cookieOptions = {
 		domain: domain,
-		path: '/'
-	});
+		path: '/',
+	};
 
-	Cookies.set("googtrans", val, {
-		domain: "." + domain,
-		path: '/'
-	});
+	if (val) {
+		// Устанавливаем куку
+		Cookies.set("googtrans", val, cookieOptions);
+	} else {
+		// Удаляем куку, если val == null
+		Cookies.remove("googtrans", cookieOptions);
+	}
 }
+
 
 function TranslateEventHandler(event, selector, handler) {
 	document.addEventListener(event, function (e) {
