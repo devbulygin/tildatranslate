@@ -92,7 +92,6 @@ function TranslateCookieHandler(val, domain) {
 		path: '/',
 	};
 
-	// Удаляем все возможные варианты куки, чтобы избежать конфликтов
 	const domainsToClear = [
 		document.domain,
 		"." + document.domain,
@@ -100,15 +99,20 @@ function TranslateCookieHandler(val, domain) {
 		"." + domain
 	];
 
+	console.log("[TranslateCookieHandler] Очистка всех googtrans cookies для доменов:", domainsToClear);
+	console.log("[TranslateCookieHandler] Устанавливаем новое значение:", val);
+
 	domainsToClear.forEach(d => {
 		Cookies.remove("googtrans", { domain: d, path: "/" });
+		console.log(`[TranslateCookieHandler] Удалена кука для домена: ${d}`);
 	});
 
-	// Устанавливаем только одну — нужную
 	if (val) {
 		Cookies.set("googtrans", val, cookieOptions);
+		console.log(`[TranslateCookieHandler] Установлена кука: ${val} для домена: ${domain}`);
 	}
 }
+
 
 
 
