@@ -46,31 +46,23 @@ function TranslateGetCode(config) {
 }
 
 function TranslateCookieHandler(val) {
-	const hostname = location.hostname;
+	const paths = ["/", "/tilda", "/project", "/pages"];
 
-	const cookieOptions = {
-		domain: hostname,
-		path: "/",
-	};
+	console.log("[TranslateCookieHandler] Удаляем куки googtrans на всех путях");
 
-	const domainsToClear = [
-		hostname,
-		"." + hostname,
-	];
-
-	console.log("[TranslateCookieHandler] Очистка googtrans cookies для:", domainsToClear);
-	console.log("[TranslateCookieHandler] Устанавливаем новое значение:", val);
-
-	domainsToClear.forEach((d) => {
-		Cookies.remove("googtrans", { domain: d, path: "/" });
-		console.log(`[TranslateCookieHandler] Удалена кука для домена: ${d}`);
+	paths.forEach(path => {
+		Cookies.remove("googtrans", { path });
+		console.log(`Удалена кука googtrans с path=${path}`);
 	});
 
 	if (val) {
-		Cookies.set("googtrans", val, cookieOptions);
-		console.log(`[TranslateCookieHandler] Установлена кука: ${val} для домена: ${hostname}`);
+		Cookies.set("googtrans", val, {
+			path: "/"
+		});
+		console.log(`[TranslateCookieHandler] Установлена кука: ${val} на текущем домене без указания domain`);
 	}
 }
+
 
 function TranslateEventHandler(event, selector, handler) {
 	document.addEventListener(event, function (e) {
