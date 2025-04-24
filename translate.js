@@ -46,9 +46,23 @@ function TranslateGetCode(config) {
 }
 
 function TranslateCookieHandler(val) {
+	const hostname = location.hostname;
+
+	// Список доменов, для которых куки НЕ должны устанавливаться
+	const blockedDomains = [
+		'kurdorganization.tilda.ws',
+		'.tilda.ws'
+	];
+
+	// Если домен попадает под блок — ничего не устанавливаем
+	if (blockedDomains.some(d => hostname === d || hostname.endsWith(d))) {
+		console.warn(`[TranslateCookieHandler] Установка куки запрещена для домена: ${hostname}`);
+		val = null; // гарантированно сбрасываем установку
+	}
+
 	const paths = ["/", "/tilda", "/project", "/pages"];
 
-	console.log("[TranslateCookieHandler] Удаляем куки googtrans на всех путях");
+	console.log("[TranslateCookieHandler] Удаление всех возможных куки googtrans");
 
 	paths.forEach(path => {
 		Cookies.remove("googtrans", { path });
@@ -59,9 +73,10 @@ function TranslateCookieHandler(val) {
 		Cookies.set("googtrans", val, {
 			path: "/"
 		});
-		console.log(`[TranslateCookieHandler] Установлена кука: ${val} на текущем домене без указания domain`);
+		console.log(`[TranslateCookieHandler] Установлена кука: ${val}`);
 	}
 }
+
 
 
 function TranslateEventHandler(event, selector, handler) {
